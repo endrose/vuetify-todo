@@ -24,13 +24,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-      src="mountains.jpg"
-      prominent
-    >
+    <v-app-bar app color="primary" dark src="mountains.jpg" prominent>
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
@@ -38,7 +32,7 @@
         ></v-img>
       </template>
 
-      <v-app-bar-nav-icon @click="drawer = !drawer" ></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
       <v-app-bar-title>Vuetify Todo</v-app-bar-title>
 
@@ -61,13 +55,18 @@
       <v-container fluid>
         <!--  -->
         <router-view></router-view>
+        <snackbar />
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import Snackbar from '@/components/Shared/Snackbar.vue';
 export default {
+  components: {
+    snackbar: require('@/components/Shared/Snackbar.vue').default
+  },
   data() {
     return {
       items: [

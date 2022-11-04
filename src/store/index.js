@@ -10,6 +10,10 @@ export default new Vuex.Store({
       { id: 2, title: 'Belajar NodeJS with NestJS', done: false },
       { id: 3, title: 'Belajar CSS with TailwindCSS', done: false },
     ],
+    snackbar: {
+      show: false,
+      text: ''
+    }
   },
   getters: {
   },
@@ -27,17 +31,40 @@ export default new Vuex.Store({
       let task = state.tasks.filter((item) => item.id === id)[0]
       task.done = !task.done
 
-      console.log(state.tasks.done)
+      console.log(task.done)
     },
     deleteTask(state, id) {
       const findIndex = state.tasks.findIndex((find) => find.id === id);
 
       state.tasks.splice(findIndex, 1);
-      alert(`Index : ${findIndex} Id : ${id}`);
       console.log('Index : ', findIndex + ' ' + 'Id : ' + id);
     },
+    showSnackbar(state, text) {
+      let timeout = 0
+
+      if (state.snackbar.show) {
+        state.snackbar.show = !state.snackbar.show
+        timeout = 300
+      }
+
+      setTimeout(() => {
+        state.snackbar.show = !state.snackbar.show
+        state.snackbar.text = text
+      }, timeout)
+    },
+    hideSnackbar(state) {
+      state.snackbar.show = !state.snackbar.show
+    }
   },
   actions: {
+    addTask({ commit }, newTaskTitle) {
+      commit('addTask', newTaskTitle)
+      commit('showSnackbar', 'Task Added!')
+    },
+    deleteTask({ commit }, id) {
+      commit('deleteTask', id)
+      commit('showSnackbar', 'Task Deleted!')
+    }
   },
   modules: {
   }
