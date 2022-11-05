@@ -4,10 +4,14 @@
     hide-details
     v-model="newTaskTitle"
     label="Append"
-    append-icon="mdi-plus"
-    @click:append="addTask"
     @keyup.enter="addTask"
-  ></v-text-field>
+  >
+    <template v-slot:append>
+      <v-icon :disabled="taskTitleInvalid" @click="addTask" color="primary">
+        mdi-plus</v-icon
+      >
+    </template>
+  </v-text-field>
 </template>
 
 <script>
@@ -17,10 +21,19 @@ export default {
       newTaskTitle: '',
     };
   },
+  computed: {
+    taskTitleInvalid() {
+      return !this.newTaskTitle;
+    },
+  },
   methods: {
     addTask() {
-      this.$store.dispatch('addTask', this.newTaskTitle);
-      this.newTaskTitle = '';
+      if (!this.taskTitleInvalid) {
+        this.$store.dispatch('addTask', this.newTaskTitle);
+        this.newTaskTitle = '';
+      }else{
+        console.log('Kosong cuy!')
+      }
     },
   },
 };

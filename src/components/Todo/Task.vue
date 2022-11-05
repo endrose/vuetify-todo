@@ -19,23 +19,26 @@
               >{{ task.title }}</v-list-item-title
             >
           </v-list-item-content>
-
+          <!-- COMP ACTION DUE DATE -->
+          <v-list-item-action v-if="task.dueDate">
+            <v-list-item-action-text>
+              <v-icon small>mdi-calendar</v-icon>
+              {{ task.dueDate | niceDate }}</v-list-item-action-text
+            >
+          </v-list-item-action>
+          <!-- COMP ACTION TASK MENU -->
           <v-list-item-action>
-            <v-btn icon>
-              <v-icon color="red lighten-1" @click.stop="dialogs.delete = true"
-                >mdi-delete</v-icon
-              >
-            </v-btn>
+            <task-menu :task="task" />
           </v-list-item-action>
         </template>
       </v-list-item>
       <v-divider></v-divider>
-      <dialog-delete v-if="dialogs.delete" :task="task" @close="closeDialog" />
     </v-list-item-group>
   </div>
 </template>
 
 <script>
+import { format } from 'date-fns';
 export default {
   props: ['task'],
   data() {
@@ -45,9 +48,13 @@ export default {
       },
     };
   },
+  filters: {
+    niceDate(value) {
+      return format(new Date(value), 'MMM d');
+    },
+  },
   components: {
-    'dialog-delete': require('@/components/Todo/Dialogs/DialogDelete.vue')
-      .default,
+    'task-menu': require('@/components/Todo/TaskMenu.vue').default,
   },
 
   methods: {
@@ -56,9 +63,6 @@ export default {
     },
     deleteTask(id) {
       this.$store.dispatch('deleteTask', id);
-    },
-    closeDialog() {
-      this.dialogs.delete = false;
     },
   },
 };
