@@ -39,6 +39,8 @@
       :task="task"
       @close="dialogs.dueDate = false"
     />
+
+    
   </div>
 </template>
 
@@ -57,6 +59,7 @@ export default {
       delete: false,
       edit: false,
       dueDate: false,
+      sorting: false,
     },
     items: [
       {
@@ -78,6 +81,17 @@ export default {
         icon: 'mdi-delete',
         click() {
           this.dialogs.delete = true;
+        },
+      },
+      {
+        title: 'Sort',
+        icon: 'mdi-drag-horizontal-variant',
+        click() {
+          if (!this.$store.state.search) {
+            this.$store.commit('toogleSorting');
+          }else{
+            this.$store.commit('showSnackbar', 'How dare your try to sort while searching!')
+          }
         },
       },
     ],

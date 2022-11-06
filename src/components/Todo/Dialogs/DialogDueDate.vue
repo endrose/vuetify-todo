@@ -38,7 +38,8 @@ export default {
         };
 
         this.$store.dispatch('updateTaskDueDate', payload);
-        this.close();
+        // this.close();
+        this.$emit('close');
       }
     },
     close() {

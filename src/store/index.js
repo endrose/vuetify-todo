@@ -1,30 +1,36 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import Localbase from 'localbase'
 
+let db = new Localbase('db')
+db.config.debug = false
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    appTitle: process.env.VUE_APP_TITLE,
+    search: null,
     tasks: [
-      { id: 1, title: 'Belajar Vuetify with VueJS', done: false, dueDate: '2022-11-01' },
-      { id: 2, title: 'Belajar NodeJS with NestJS', done: false, dueDate: '2022-11-05' },
-      { id: 3, title: 'Belajar CSS with TailwindCSS', done: false, dueDate: null },
+      // { id: 1, title: 'Belajar Vuetify with VueJS', done: false, dueDate: '2022-11-01' },
+      // { id: 2, title: 'Belajar NodeJS with NestJS', done: false, dueDate: '2022-11-05' },
+      // { id: 3, title: 'Belajar CSS with TailwindCSS', done: false, dueDate: null },
     ],
     snackbar: {
       show: false,
       text: ''
-    }
+    },
+    sorting: false
   },
   getters: {
+    taskFiltered(state) {
+      if (!state.search) {
+        return state.tasks
+      }
+      return state.tasks.filter(task => task.title.toLowerCase().includes(state.search.toLowerCase()))
+    }
   },
   mutations: {
-    addTask(state, newTaskTitle) {
-      const newTask = {
-        id: Date.now(),
-        title: newTaskTitle,
-        done: false,
-        dueDate: null
-      };
+    addTask(state, newTask) {
       state.tasks.push(newTask);
       console.log('Add Task ' + JSON.stringify(newTask));
     },
@@ -51,6 +57,12 @@ export default new Vuex.Store({
       task.dueDate = payload.dueDate
       console.log('payload', payload, 'task filter dueDate', task)
     },
+    setTasks(state, tasks) {
+      state.tasks = tasks
+    },
+    setSearch(state, value) {
+      state.search = value
+    },
     showSnackbar(state, text) {
       let timeout = 0
 
@@ -66,24 +78,64 @@ export default new Vuex.Store({
     },
     hideSnackbar(state) {
       state.snackbar.show = !state.snackbar.show
+    },
+    toogleSorting(state) {
+      state.sorting = !state.sorting
     }
   },
   actions: {
     addTask({ commit }, newTaskTitle) {
-      commit('addTask', newTaskTitle)
-      commit('showSnackbar', 'Task Added!')
+      let newTask = {
+        id: Date.now(),
+        title: newTaskTitle,
+        done: false,
+        dueDate: null
+      };
+      db.collection('tasks').add(newTask).then(() => {
+        commit('addTask', newTask)
+        commit('showSnackbar', 'Task Added!')
+      })
+    },
+    doneTask({ state, commit }, id) {
+      let task = state.tasks.filter((task) => task.id === id)[0]
+      db.collection('tasks').doc({ id: id }).update({
+        done: !task.done
+      }).then(() => {
+        commit('doneTask', id)
+      })
+    },
+    setTasks({ commit }, tasks) {
+      db.collection('tasks').set(tasks).then(() => {
+        commit('setTasks', tasks)
+      })
+    },
+    getTasks({ commit }) {
+      db.collection('tasks').get().then(tasks => {
+        commit('setTasks', tasks)
+      })
     },
     deleteTask({ commit }, id) {
-      commit('deleteTask', id)
-      commit('showSnackbar', 'Task Deleted!')
+      db.collection('tasks').doc({ id: id }).delete().then(() => {
+        commit('deleteTask', id)
+        commit('showSnackbar', 'Task Deleted!')
+      })
     },
-    updateTaskTitle({ commit }, payload) {
-      commit('updateTaskTitle', payload)
-      commit('showSnackbar', 'Task Updated!')
+    updateTaskTitle({ state, commit }, payload) {
+      // let task = state.tasks.filter((task) => task.id === payload.id)[0]
+      db.collection('tasks').doc({ id: payload.id }).update({
+        title: payload.title
+      }).then(() => {
+        commit('updateTaskTitle', payload)
+        commit('showSnackbar', 'Task Updated!')
+      })
     },
     updateTaskDueDate({ commit }, payload) {
-      commit('updateTaskDueDate', payload)
-      commit('showSnackbar', 'Due Date Updated!')
+      db.collection('tasks').doc({ id: payload.id }).update({
+        dueDate: payload.dueDate
+      }).then(() => {
+        commit('updateTaskDueDate', payload)
+        commit('showSnackbar', 'Due Date Updated!')
+      })
     }
   },
   modules: {

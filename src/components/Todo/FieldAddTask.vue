@@ -3,13 +3,12 @@
     outlined
     hide-details
     v-model="newTaskTitle"
-    label="Append"
+    placeholder="Add Task"
+    class="field-add-task pa-3"
     @keyup.enter="addTask"
   >
     <template v-slot:append>
-      <v-icon :disabled="taskTitleInvalid" @click="addTask" color="primary">
-        mdi-plus</v-icon
-      >
+      <v-icon :disabled="taskTitleInvalid" @click="addTask"> mdi-plus</v-icon>
     </template>
   </v-text-field>
 </template>
@@ -31,12 +30,16 @@ export default {
       if (!this.taskTitleInvalid) {
         this.$store.dispatch('addTask', this.newTaskTitle);
         this.newTaskTitle = '';
-      }else{
-        console.log('Kosong cuy!')
+      } else {
+        console.log('Kosong cuy!');
       }
     },
   },
 };
 </script>
 
-<style></style>
+<style lang="sass">
+  .field-add-task.v-input--is-focused
+    .v-input__slot
+      background-color: rgba(31,94,129,0.5)
+</style>
